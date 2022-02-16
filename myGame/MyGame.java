@@ -3,7 +3,7 @@ package myGame;
 import tage.*;
 import tage.shapes.*;
 
-import java.awt.event.KeyEvent;
+// import java.awt.event.KeyEvent;
 
 public class MyGame extends VariableFrameRateGame {
     private static Engine engine;
@@ -47,7 +47,7 @@ public class MyGame extends VariableFrameRateGame {
     public void update() {
 
     }
-
+/*
     @Override
     public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()) {
@@ -55,4 +55,5 @@ public class MyGame extends VariableFrameRateGame {
         }
         super.keyPressed(e); // ESC already mapped to game exit. "=" key already mapped to window/fullscreen toggle.
     }
+*/
 }

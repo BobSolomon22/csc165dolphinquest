@@ -17,9 +17,9 @@ public class MyGame extends VariableFrameRateGame {
     public static Engine getEngine() { return engine; }
 
     // GameObject declarations
-    private GameObject dolphin;
+    private GameObject dolphin, xAxis, yAxis, zAxis;
     // ObjShape declarations
-    private ObjShape dolphinS;
+    private ObjShape dolphinS, xAxisS, yAxisS, zAxisS;
     // TextureImage declarations
     private TextureImage dolphintx;
     // Light declarations
@@ -37,6 +37,9 @@ public class MyGame extends VariableFrameRateGame {
     @Override
     public void loadShapes() {
         dolphinS = new ImportedModel("dolphinHighPoly.obj");
+        xAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
+        yAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
+        zAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f));
     }
 
     @Override
@@ -47,12 +50,21 @@ public class MyGame extends VariableFrameRateGame {
     @Override
     public void buildObjects() {
         Matrix4f initialTranslation, initialScale;
-
+        
+        // build dolphin
         dolphin = new GameObject(GameObject.root(), dolphinS, dolphintx);
         initialTranslation = (new Matrix4f()).translation(0,0,0);
         initialScale = (new Matrix4f()).scaling(3.0f);
         dolphin.setLocalTranslation(initialTranslation);
         dolphin.setLocalScale(initialScale);
+
+        // build axes
+        xAxis = new GameObject(GameObject.root(), xAxisS);
+        yAxis = new GameObject(GameObject.root(), yAxisS);
+        zAxis = new GameObject(GameObject.root(), zAxisS);
+        (xAxis.getRenderStates()).setColor(new Vector3f(1f,0f,0f));
+        (yAxis.getRenderStates()).setColor(new Vector3f(0f,1f,0f));
+        (zAxis.getRenderStates()).setColor(new Vector3f(0f,0f,1f));
     }
 
     @Override

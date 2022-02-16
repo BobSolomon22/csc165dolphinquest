@@ -17,11 +17,11 @@ public class MyGame extends VariableFrameRateGame {
     public static Engine getEngine() { return engine; }
 
     // GameObject declarations
-    private GameObject dolphin, xAxis, yAxis, zAxis;
+    private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis;
     // ObjShape declarations
-    private ObjShape dolphinS, xAxisS, yAxisS, zAxisS;
+    private ObjShape dolphinS, prize1S, prize2S, prize3S, xAxisS, yAxisS, zAxisS;
     // TextureImage declarations
-    private TextureImage dolphintx;
+    private TextureImage dolphintx, prize1tx, prize2tx, prize3tx;
     // Light declarations
     private Light light1;
 
@@ -37,6 +37,8 @@ public class MyGame extends VariableFrameRateGame {
     @Override
     public void loadShapes() {
         dolphinS = new ImportedModel("dolphinHighPoly.obj");
+        prize1S = new Cube();
+        prize2S = new Torus();
         xAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
         yAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
         zAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f));
@@ -45,18 +47,26 @@ public class MyGame extends VariableFrameRateGame {
     @Override
     public void loadTextures() {
         dolphintx = new TextureImage("Dolphin_HighPolyUV.png");
+        prize1tx = new TextureImage("smile.png");
+        prize2tx = new TextureImage("stripe.png");
     }
 
     @Override
     public void buildObjects() {
-        Matrix4f initialTranslation, initialScale;
-        
         // build dolphin
         dolphin = new GameObject(GameObject.root(), dolphinS, dolphintx);
-        initialTranslation = (new Matrix4f()).translation(0,0,0);
-        initialScale = (new Matrix4f()).scaling(3.0f);
-        dolphin.setLocalTranslation(initialTranslation);
-        dolphin.setLocalScale(initialScale);
+        dolphin.setLocalTranslation((new Matrix4f()).translation(0,0,0));
+        dolphin.setLocalScale((new Matrix4f()).scaling(3.0f));
+
+        // build prizes
+        prize1 = new GameObject(GameObject.root(), prize1S, prize1tx);
+        prize1.setLocalTranslation(new Matrix4f().translation(0,2,0));
+        prize1.setLocalScale(new Matrix4f().scaling(0.2f));
+
+        prize2 = new GameObject(GameObject.root(), prize2S, prize2tx);
+        prize2.setLocalTranslation(new Matrix4f().translation(2,0,0));
+        prize2.setLocalScale(new Matrix4f().scaling(0.5f));
+        prize2.setLocalRotation(new Matrix4f().rotate(90, new Vector3f(1f,0f,0f)));
 
         // build axes
         xAxis = new GameObject(GameObject.root(), xAxisS);

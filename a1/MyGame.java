@@ -12,6 +12,8 @@ import java.io.*;
 import javax.swing.*;
 import org.joml.*;
 
+import java.util.ArrayList;
+
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
@@ -112,34 +114,39 @@ public class MyGame extends VariableFrameRateGame {
 
         // setup inputs
         im = engine.getInputManager();
-        String gpName = im.getFirstGamepadName();
-        String kbName = im.getKeyboardName();
+        ArrayList controllers = im.getControllers();
+
         BackNForthAction backNForthAction = new BackNForthAction(this);
         FwdAction fwdAction = new FwdAction(this);
         TurnAction turnAction = new TurnAction(this);
 
-        if(gpName != null) {
+        for(Controller c : controllers) {
+            // controller backnforth
             im.associateAction(
-            gpName,
+            c,
             net.java.games.input.Component.Identifier.Axis.Y,
             backNForthAction,
             INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
             );
             
+            // controller turn
             im.associateAction(
-            gpName,
+            c,
             net.java.games.input.Component.Identifier.Axis.X,
             turnAction,
             INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
             );
-        }
-        
-        im.associateAction(
+
+            // keyboard forward
+            im.associateAction(
             kbName,
             net.java.games.input.Component.Identifier.Key.W,
             fwdAction,
             INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
             );
+        }
+        
+        
     }
 
     @Override

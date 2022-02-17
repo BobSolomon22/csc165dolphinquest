@@ -39,6 +39,7 @@ public class MyGame extends VariableFrameRateGame {
         dolphinS = new ImportedModel("dolphinHighPoly.obj");
         prize1S = new Cube();
         prize2S = new Torus();
+        prize3S = new Sphere();
         xAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
         yAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
         zAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f));
@@ -49,6 +50,7 @@ public class MyGame extends VariableFrameRateGame {
         dolphintx = new TextureImage("Dolphin_HighPolyUV.png");
         prize1tx = new TextureImage("smile.png");
         prize2tx = new TextureImage("stripe.png");
+        prize3tx = new TextureImage("divide.png");
     }
 
     @Override
@@ -61,12 +63,17 @@ public class MyGame extends VariableFrameRateGame {
         // build prizes
         prize1 = new GameObject(GameObject.root(), prize1S, prize1tx);
         prize1.setLocalTranslation(new Matrix4f().translation(0,2,0));
-        prize1.setLocalScale(new Matrix4f().scaling(0.2f));
+        prize1.setLocalScale(new Matrix4f().scaling(0.3f));
 
         prize2 = new GameObject(GameObject.root(), prize2S, prize2tx);
         prize2.setLocalTranslation(new Matrix4f().translation(2,0,0));
         prize2.setLocalScale(new Matrix4f().scaling(0.5f));
         prize2.setLocalRotation(new Matrix4f().rotate(90, new Vector3f(1f,0f,0f)));
+
+        prize3 = new GameObject(GameObject.root(), prize3S, prize3tx);
+        prize3.setLocalTranslation(new Matrix4f().translation(-2,0,0));
+        prize3.setLocalScale(new Matrix4f().scaling(0.5f));
+        prize3.setLocalRotation(new Matrix4f().rotate(-90, new Vector3f(0f,1f,0f)));
 
         // build axes
         xAxis = new GameObject(GameObject.root(), xAxisS);

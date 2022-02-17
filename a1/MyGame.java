@@ -1,6 +1,8 @@
 package a1;
 
 import tage.*;
+import tage.input.InputManager;
+import tage.input.IInputManager.INPUT_ACTION_TYPE;
 import tage.shapes.*;
 
 import java.lang.Math;
@@ -10,11 +12,17 @@ import java.io.*;
 import javax.swing.*;
 import org.joml.*;
 
+import net.java.games.input.*;
+import net.java.games.input.Component.Identifier.*;
+
 // import java.awt.event.KeyEvent;
 
 public class MyGame extends VariableFrameRateGame {
     private static Engine engine;
+    private InputManager im;
     public static Engine getEngine() { return engine; }
+
+    private double startTime, prevTime, elapsedTime, amount;
 
     // GameObject declarations
     private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis;
@@ -26,6 +34,10 @@ public class MyGame extends VariableFrameRateGame {
     private Light light1;
 
     public MyGame() { super(); }
+
+    public GameObject getAvatar() {
+        return dolphin;
+    }
 
     public static void main(String[] args) {
         MyGame game = new MyGame();
@@ -86,20 +98,71 @@ public class MyGame extends VariableFrameRateGame {
 
     @Override
     public void initializeGame() {
+        // setup window
         (engine.getRenderSystem()).setWindowDimensions(1900,1000);
         
+        // setup light
         Light.setGlobalAmbient(0.5f, 0.5f, 0.5f);
-
         light1 = new Light();
         light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
         (engine.getSceneGraph()).addLight(light1);
-
+        
+        // setup camera location
         (engine.getRenderSystem().getViewport("MAIN").getCamera()).setLocation(new Vector3f(0,0,5));
+
+        // setup inputs
+        im = engine.getInputManager();
+        String gpName = im.getFirstGamepadName();
+        String kbName = im.getKeyboardName();
+        BackNForthAction backNForthAction = new BackNForthAction(this);
+        FwdAction fwdAction = new FwdAction(this);
+        TurnAction turnAction = new TurnAction(this);
+
+        if(gpName != null) {
+            im.associateAction(
+            gpName,
+            net.java.games.input.Component.Identifier.Axis.Y,
+            backNForthAction,
+            INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+            );
+            
+            im.associateAction(
+            gpName,
+            net.java.games.input.Component.Identifier.Axis.X,
+            turnAction,
+            INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+            );
+        }
+        
+        im.associateAction(
+            kbName,
+            net.java.games.input.Component.Identifier.Key.W,
+            fwdAction,
+            INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+            );
     }
 
     @Override
     public void update() {
+        elapsedTime = System.currentTimeMillis() - prevTime;
+        prevTime = System.currentTimeMillis();
+        amount = elapsedTime * 0.03;
+        Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
 
+        im.update((float)elapsedTime);
+        positionCameraBehindAvatar();
+    }
+
+    private void positionCameraBehindAvatar() {
+        Camera cam = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
+        Vector3f location = dolphin.getLocalLocation();
+        Vector3f forward = dolphin.getLocalForwardVector();
+        Vector3f up = dolphin.getLocalUpVector();
+        Vector3f right = dolphin.getLocalRightVector();
+        cam.setU(right);
+        cam.setV(up);
+        cam.setN(forward);
+        cam.setLocation(location.add(up.mul(0.75f).add(forward.mul(-2.0f))));
     }
 /*
     @Override

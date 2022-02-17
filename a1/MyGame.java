@@ -114,36 +114,60 @@ public class MyGame extends VariableFrameRateGame {
 
         // setup inputs
         im = engine.getInputManager();
-        ArrayList controllers = im.getControllers();
+        ArrayList<Controller> controllers = im.getControllers();
 
-        BackNForthAction backNForthAction = new BackNForthAction(this);
         FwdAction fwdAction = new FwdAction(this);
+        BackAction backAction = new BackAction(this);
+        LeftAction leftAction = new LeftAction(this);
+        RightAction rightAction = new RightAction(this);
+        BackNForthAction backNForthAction = new BackNForthAction(this);
         TurnAction turnAction = new TurnAction(this);
 
         for(Controller c : controllers) {
-            // controller backnforth
-            im.associateAction(
-            c,
-            net.java.games.input.Component.Identifier.Axis.Y,
-            backNForthAction,
-            INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
-            );
-            
-            // controller turn
-            im.associateAction(
-            c,
-            net.java.games.input.Component.Identifier.Axis.X,
-            turnAction,
-            INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
-            );
-
-            // keyboard forward
-            im.associateAction(
-            kbName,
-            net.java.games.input.Component.Identifier.Key.W,
-            fwdAction,
-            INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
-            );
+            if(c.getType() == Controller.Type.KEYBOARD) {
+                // keyboard forward
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.W,
+                    fwdAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard backward
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.S,
+                    backAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.A,
+                    leftAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.D,
+                    rightAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+            }
+            else if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
+                // controller backnforth
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Axis.Y,
+                    backNForthAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller turn
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Axis.X,
+                    turnAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+            }
         }
         
         

@@ -21,9 +21,11 @@ public class MountAction extends AbstractInputAction {
         Vector3f location = avatar.getLocalLocation();
         Vector3f forward = avatar.getLocalForwardVector();
         Vector3f up = avatar.getLocalUpVector();
+        Vector3f right = avatar.getLocalRightVector();
 
         if(game.isRidingDolphin()) {
-            camera.setLocation(location.add(up.mul(1.0f).add(forward.mul(-1.5f))));
+            camera.setLocation(location.add(right.mul(1.0f).add(forward.mul(1.5f))));
+            camera.lookAt(avatar);
         }
         game.toggleRide();
     }

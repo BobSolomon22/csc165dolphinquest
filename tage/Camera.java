@@ -14,7 +14,7 @@ import org.joml.*;
 * @author Scott Gordon
 */
 
-public class Camera
+public class Camera implements IControllable
 {
 	private Vector3f u, v, n;
 	private Vector3f defaultU, defaultV, defaultN;
@@ -95,5 +95,22 @@ public class Camera
 		view.mul(viewT);
 
 		return(view);
+	}
+
+	public void pitch(float amount) {
+
+	}
+
+	public void yaw(float amount) {
+		Vector3f rightVector, upVector, fwdVector;
+		rightVector = getU();
+		upVector = getV();
+		fwdVector = getN();
+
+		rightVector.rotateAxis(amount, upVector.x(), upVector.y(), upVector.z());
+		fwdVector.rotateAxis(amount, upVector.x(), upVector.y(), upVector.z());
+
+		setU(rightVector);
+		setN(fwdVector);
 	}
 }

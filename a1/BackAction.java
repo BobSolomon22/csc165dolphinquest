@@ -21,7 +21,7 @@ public class BackAction extends AbstractInputAction {
         oldPos = avatar.getWorldLocation();
         backDirection = new Vector4f(0f,0f,1f,1f);
         backDirection.mul(avatar.getWorldRotation());
-        backDirection.mul(-0.01f);
+        backDirection.mul(-0.005f * time);
         newPos = oldPos.add(backDirection.x(), backDirection.y(), backDirection.z());
         avatar.setLocalLocation(newPos);
     }

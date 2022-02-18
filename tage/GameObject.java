@@ -55,7 +55,7 @@ import tage.physics.PhysicsObject;
 * @author Scott Gordon
 */
 
-public class GameObject
+public class GameObject implements IControllable
 {
 	//------------------ STATIC AREA -----------------------
 	private static GameObject root;
@@ -385,5 +385,18 @@ public class GameObject
 		{	setTextureFile(textureFile);
 			Engine.getEngine().getRenderSystem().addTexture((TextureImage)this);
 		}
+	}
+
+	public void pitch(float amount) {
+		
+	}
+
+	public void yaw(float amount) {
+		Matrix4f oldRotation = new Matrix4f(getWorldRotation());
+		Vector4f oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
+		Matrix4f rotAroundAvatarUp = new Matrix4f().rotation(amount, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
+		Matrix4f newRotation = oldRotation;
+        newRotation.mul(rotAroundAvatarUp);
+        setLocalRotation(newRotation);
 	}
 }

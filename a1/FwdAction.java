@@ -21,7 +21,7 @@ public class FwdAction extends AbstractInputAction {
         oldPos = avatar.getWorldLocation();
         fwdDirection = new Vector4f(0f,0f,1f,1f);
         fwdDirection.mul(avatar.getWorldRotation());
-        fwdDirection.mul(0.01f);
+        fwdDirection.mul(0.005f * time);
         newPos = oldPos.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
         avatar.setLocalLocation(newPos);
     }

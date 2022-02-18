@@ -25,6 +25,7 @@ public class MyGame extends VariableFrameRateGame {
     public static Engine getEngine() { return engine; }
 
     private double startTime, prevTime, elapsedTime, amount;
+    private boolean ridingDolphin;
 
     // GameObject declarations
     private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis;
@@ -39,6 +40,23 @@ public class MyGame extends VariableFrameRateGame {
 
     public GameObject getAvatar() {
         return dolphin;
+    }
+
+    public Camera getCamera() {
+        return (engine.getRenderSystem().getViewport("MAIN").getCamera());
+    }
+
+    public boolean isRidingDolphin() {
+        return ridingDolphin;
+    }
+
+    public void toggleRide() {
+        if(ridingDolphin) {
+            ridingDolphin = false;
+        }
+        else {
+            ridingDolphin = true;
+        }
     }
 
     public static void main(String[] args) {
@@ -112,6 +130,9 @@ public class MyGame extends VariableFrameRateGame {
         // setup camera location
         (engine.getRenderSystem().getViewport("MAIN").getCamera()).setLocation(new Vector3f(0,0,5));
 
+        // initialize variables
+        ridingDolphin = true;
+
         // setup inputs
         im = engine.getInputManager();
         ArrayList<Controller> controllers = im.getControllers();
@@ -122,6 +143,7 @@ public class MyGame extends VariableFrameRateGame {
         RightAction rightAction = new RightAction(this);
         BackNForthAction backNForthAction = new BackNForthAction(this);
         TurnAction turnAction = new TurnAction(this);
+        MountAction mountAction = new MountAction(this);
 
         for(Controller c : controllers) {
             if(c.getType() == Controller.Type.KEYBOARD) {
@@ -138,6 +160,7 @@ public class MyGame extends VariableFrameRateGame {
                     net.java.games.input.Component.Identifier.Key.S,
                     backAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                // keyboard left
                 );
                 im.associateAction(
                     c,
@@ -145,11 +168,19 @@ public class MyGame extends VariableFrameRateGame {
                     leftAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
+                // keyboard right
                 im.associateAction(
                     c,
                     net.java.games.input.Component.Identifier.Key.D,
                     rightAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard mount
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.SPACE,
+                    mountAction,
+                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
             }
             else if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
@@ -167,6 +198,13 @@ public class MyGame extends VariableFrameRateGame {
                     turnAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
+                // controller mount
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._1,
+                    mountAction,
+                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                );
             }
         }
         
@@ -181,7 +219,9 @@ public class MyGame extends VariableFrameRateGame {
         Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
 
         im.update((float)elapsedTime);
-        positionCameraBehindAvatar();
+        if(ridingDolphin) {
+            positionCameraBehindAvatar();
+        }
     }
 
     private void positionCameraBehindAvatar() {
@@ -193,7 +233,7 @@ public class MyGame extends VariableFrameRateGame {
         cam.setU(right);
         cam.setV(up);
         cam.setN(forward);
-        cam.setLocation(location.add(up.mul(0.75f).add(forward.mul(-2.0f))));
+        cam.setLocation(location.add(up.mul(1.0f).add(forward.mul(-1.5f))));
     }
 /*
     @Override

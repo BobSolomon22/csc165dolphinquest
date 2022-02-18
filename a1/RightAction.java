@@ -26,7 +26,7 @@ public class RightAction extends AbstractInputAction {
         oldRotation = new Matrix4f(avatar.getWorldRotation());
         oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
 
-        rotAroundAvatarUp = new Matrix4f().rotation(-0.005f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
+        rotAroundAvatarUp = new Matrix4f().rotation(-0.003f * time, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
         newRotation = oldRotation;
         newRotation.mul(rotAroundAvatarUp);
         avatar.setLocalRotation(newRotation);

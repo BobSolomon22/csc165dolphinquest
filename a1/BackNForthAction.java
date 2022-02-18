@@ -28,10 +28,10 @@ public class BackNForthAction extends AbstractInputAction {
         fwdDirection.mul(avatar.getWorldRotation());
 
         if(keyValue < -0.2) {
-            fwdDirection.mul(0.01f);
+            fwdDirection.mul(0.005f * time);
         }
         else {
-            fwdDirection.mul(-0.01f);
+            fwdDirection.mul(-0.005f * time);
         }
         newPos = oldPos.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
         avatar.setLocalLocation(newPos);

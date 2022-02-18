@@ -8,8 +8,9 @@ import org.joml.*;
 public class BackAction extends AbstractInputAction {
     private MyGame game;
     private GameObject avatar;
-    private Vector3f oldPos, newPos;
-    private Vector4f backDirection;
+    private Camera camera;
+    private Vector3f oldPos, newPos, fwdDirectionCamera;
+    private Vector4f fwdDirectionAvatar;
 
     public BackAction(MyGame g) {
         game = g;
@@ -18,11 +19,21 @@ public class BackAction extends AbstractInputAction {
     @Override
     public void performAction(float time, Event e) {
         avatar = game.getAvatar();
-        oldPos = avatar.getWorldLocation();
-        backDirection = new Vector4f(0f,0f,1f,1f);
-        backDirection.mul(avatar.getWorldRotation());
-        backDirection.mul(-0.005f * time);
-        newPos = oldPos.add(backDirection.x(), backDirection.y(), backDirection.z());
-        avatar.setLocalLocation(newPos);
+        camera = game.getCamera();
+        if(game.isRidingDolphin()) {
+            oldPos = avatar.getWorldLocation();
+            fwdDirectionAvatar = new Vector4f(0f,0f,1f,1f);
+            fwdDirectionAvatar.mul(avatar.getWorldRotation());
+            fwdDirectionAvatar.mul(-0.005f * time);
+            newPos = oldPos.add(fwdDirectionAvatar.x(), fwdDirectionAvatar.y(), fwdDirectionAvatar.z());
+            avatar.setLocalLocation(newPos);
+        }
+        else {
+            oldPos = camera.getLocation();
+            fwdDirectionCamera = camera.getN();
+            fwdDirectionCamera.mul(-0.005f * time);
+            newPos = oldPos.add(fwdDirectionCamera.x(), fwdDirectionCamera.y(), fwdDirectionCamera.z());
+            camera.setLocation(newPos);
+        }
     }
 }

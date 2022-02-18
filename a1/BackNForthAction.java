@@ -8,8 +8,9 @@ import org.joml.*;
 public class BackNForthAction extends AbstractInputAction {
     private MyGame game;
     private GameObject avatar;
-    private Vector3f oldPos, newPos;
-    private Vector4f fwdDirection;
+    private Camera camera;
+    private Vector3f oldPos, newPos, fwdDirectionCamera;
+    private Vector4f fwdDirectionAvatar;
 
     public BackNForthAction(MyGame g) {
         game = g;
@@ -22,18 +23,36 @@ public class BackNForthAction extends AbstractInputAction {
             return;
         }
 
-        avatar = game.getAvatar();
-        oldPos = avatar.getWorldLocation();
-        fwdDirection = new Vector4f(0f,0f,1f,1f);
-        fwdDirection.mul(avatar.getWorldRotation());
+        if(game.isRidingDolphin()) {
+            avatar = game.getAvatar();
+            oldPos = avatar.getWorldLocation();
+            fwdDirectionAvatar = new Vector4f(0f,0f,1f,1f);
+            fwdDirectionAvatar.mul(avatar.getWorldRotation());
 
-        if(keyValue < -0.2) {
-            fwdDirection.mul(0.005f * time);
+            if(keyValue < -0.2) {
+                fwdDirectionAvatar.mul(0.005f * time);
+            }
+            else {
+                fwdDirectionAvatar.mul(-0.005f * time);
+            }
+            newPos = oldPos.add(fwdDirectionAvatar.x(), fwdDirectionAvatar.y(), fwdDirectionAvatar.z());
+            avatar.setLocalLocation(newPos);
         }
         else {
-            fwdDirection.mul(-0.005f * time);
+            camera = game.getCamera();
+            oldPos = camera.getLocation();
+            fwdDirectionCamera = camera.getN();
+            
+            if(keyValue < 0.02) {
+                fwdDirectionCamera.mul(0.005f * time);
+            }
+            else {
+                fwdDirectionCamera.mul(-0.005f * time);
+            }
+            newPos = oldPos.add(fwdDirectionCamera.x(), fwdDirectionCamera.y(), fwdDirectionCamera.z());
+            camera.setLocation(newPos);
         }
-        newPos = oldPos.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
-        avatar.setLocalLocation(newPos);
+
+        
     }
 }

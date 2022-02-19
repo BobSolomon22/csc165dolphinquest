@@ -318,7 +318,7 @@ public class MyGame extends VariableFrameRateGame {
         oldCameraLocation = c.getLocation();
         
         // update input manager and update locations
-        if(speedBoostTimer > 0) {
+        if(ridingDolphin && speedBoostTimer > 0) {
             im.update((float)elapsedTime * 2.0f);
         }
         else {

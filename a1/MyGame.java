@@ -26,6 +26,10 @@ public class MyGame extends VariableFrameRateGame {
 
     private double startTime, prevTime, elapsedTime, amount;
     private boolean ridingDolphin;
+    private Vector3f dolphinLocation;
+    private Vector3f oldCameraLocation;
+    private Vector3f newCameraLocation;
+    private float distanceBetweenAvatarAndCamera;
 
     // GameObject declarations
     private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis;
@@ -241,10 +245,25 @@ public class MyGame extends VariableFrameRateGame {
         prevTime = System.currentTimeMillis();
         amount = elapsedTime * 0.03;
         Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-
+        
+        // get current cam/dolphin locations for later distance calculation
+        dolphinLocation = dolphin.getLocalLocation();
+        oldCameraLocation = c.getLocation();
+        
+        // update input manager and update locations
         im.update((float)elapsedTime);
+
+        // calculate distance between camera's new location and dolphin
+        newCameraLocation = c.getLocation();
+        distanceBetweenAvatarAndCamera = calculateDistanceBetweenDolphinAndCamera();
+
+        // camera follows dolphin if it is riding
         if(ridingDolphin) {
             positionCameraBehindAvatar();
+        }
+        // if camera is not riding and strays too far, reset to previous position
+        else if(distanceBetweenAvatarAndCamera > 10) {
+            c.setLocation(oldCameraLocation);
         }
     }
 
@@ -258,6 +277,19 @@ public class MyGame extends VariableFrameRateGame {
         cam.setV(up);
         cam.setN(forward);
         cam.setLocation(location.add(up.mul(1.0f).add(forward.mul(-1.5f))));
+    }
+
+    private float calculateDistanceBetweenDolphinAndCamera() {
+        double xs = dolphinLocation.x() - newCameraLocation.x();
+        double ys = dolphinLocation.y() - newCameraLocation.y();
+        double zs = dolphinLocation.z() - newCameraLocation.z();
+
+        float result = (float)(Math.abs(Math.sqrt((Math.pow(xs, 2)) + (Math.pow(ys, 2)) + (Math.pow(zs, 2)))));
+        return result;
+    }
+
+    public float getDistanceBetweenDolphinAndCamera() {
+        return distanceBetweenAvatarAndCamera;
     }
 /*
     @Override

@@ -25,8 +25,10 @@ public class MountAction extends AbstractInputAction {
 
         if(game.isRidingDolphin()) {
             camera.setLocation(location.add(right.mul(1.0f).add(forward.mul(1.5f))));
-            camera.lookAt(avatar);
+            game.toggleRide();
         }
-        game.toggleRide();
+        else if(game.getDistanceBetweenDolphinAndCamera() < 3) {
+            game.toggleRide();
+        }
     }
 }

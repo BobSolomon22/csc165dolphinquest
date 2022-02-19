@@ -5,12 +5,12 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 import org.joml.*;
 
-public class TurnAction extends AbstractInputAction {
+public class PitchUpNDownAction extends AbstractInputAction {
     private MyGame game;
     private GameObject avatar;
     private Camera camera;
 
-    public TurnAction(MyGame g) {
+    public PitchUpNDownAction(MyGame g) {
         game = g;
     }
 
@@ -26,18 +26,18 @@ public class TurnAction extends AbstractInputAction {
 
         if(game.isRidingDolphin()) {
             if(keyValue > 0.3) {
-                avatar.yaw(-0.003f * time);
+                avatar.pitch(-0.003f * time);
             }
             else {
-                avatar.yaw(0.003f * time);
+                avatar.pitch(0.003f * time);
             }
         }
         else {
             if(keyValue > 0.3) {
-                camera.yaw(-0.003f * time);
+                camera.pitch(-0.003f * time);
             }
             else {
-                camera.yaw(0.003f * time);
+                camera.pitch(0.003f * time);
             }
         }
     }

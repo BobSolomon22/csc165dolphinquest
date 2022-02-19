@@ -141,8 +141,11 @@ public class MyGame extends VariableFrameRateGame {
         BackAction backAction = new BackAction(this);
         LeftAction leftAction = new LeftAction(this);
         RightAction rightAction = new RightAction(this);
+        PitchUpAction pitchUpAction = new PitchUpAction(this);
+        PitchDownAction pitchDownAction = new PitchDownAction(this);
         BackNForthAction backNForthAction = new BackNForthAction(this);
         TurnAction turnAction = new TurnAction(this);
+        PitchUpNDownAction pitchUpNDownAction = new PitchUpNDownAction(this);
         MountAction mountAction = new MountAction(this);
 
         for(Controller c : controllers) {
@@ -175,6 +178,20 @@ public class MyGame extends VariableFrameRateGame {
                     rightAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
+                // keyboard pitch up
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.UP,
+                    pitchUpAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard pitch down
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.DOWN,
+                    pitchDownAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
                 // keyboard mount
                 im.associateAction(
                     c,
@@ -204,6 +221,13 @@ public class MyGame extends VariableFrameRateGame {
                     net.java.games.input.Component.Identifier.Button._1,
                     mountAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                );
+                // controller pitch
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Axis.RY,
+                    pitchUpNDownAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
             }
         }

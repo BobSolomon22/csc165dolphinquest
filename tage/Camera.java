@@ -98,7 +98,16 @@ public class Camera implements IControllable
 	}
 
 	public void pitch(float amount) {
+		Vector3f rightVector, upVector, fwdVector;
+		rightVector = getU();
+		upVector = getV();
+		fwdVector = getN();
 
+		upVector.rotateAxis(amount, rightVector.x(), rightVector.y(), rightVector.z());
+		fwdVector.rotateAxis(amount, rightVector.x(), rightVector.y(), rightVector.z());
+
+		setV(upVector);
+		setN(fwdVector);
 	}
 
 	public void yaw(float amount) {

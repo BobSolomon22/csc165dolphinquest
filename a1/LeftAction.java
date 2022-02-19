@@ -8,6 +8,7 @@ import org.joml.*;
 public class LeftAction extends AbstractInputAction {
     private MyGame game;
     private GameObject avatar;
+    private Camera camera;
     private Vector4f oldUp;
     private Matrix4f rotAroundAvatarUp, oldRotation, newRotation;
 
@@ -22,13 +23,13 @@ public class LeftAction extends AbstractInputAction {
             return;
         }
 
-        avatar = game.getAvatar();
-        oldRotation = new Matrix4f(avatar.getWorldRotation());
-        oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
-
-        rotAroundAvatarUp = new Matrix4f().rotation(0.003f * time, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
-        newRotation = oldRotation;
-        newRotation.mul(rotAroundAvatarUp);
-        avatar.setLocalRotation(newRotation);
+        if(game.isRidingDolphin()) {
+            avatar = game.getAvatar();
+            avatar.yaw(0.003f * time);
+        }
+        else {
+            camera = game.getCamera();
+            camera.yaw(0.003f * time);
+        }
     }
 }

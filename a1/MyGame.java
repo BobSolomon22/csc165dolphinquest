@@ -173,6 +173,7 @@ public class MyGame extends VariableFrameRateGame {
 
         // randomly move diamond
         Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25);
+        diamondOfPower.setLocalLocation(diamondLocation);
 
         // setup inputs
         im = engine.getInputManager();

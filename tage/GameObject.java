@@ -389,7 +389,7 @@ public class GameObject implements IControllable
 
 	public void pitch(float amount) {
 		Matrix4f oldRotation = getLocalRotation();
-		oldRotation.rotateX(amount);
+		oldRotation.rotateX(-amount);
 		setLocalRotation(oldRotation);
 	}
 

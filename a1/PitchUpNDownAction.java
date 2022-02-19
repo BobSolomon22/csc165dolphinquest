@@ -26,10 +26,10 @@ public class PitchUpNDownAction extends AbstractInputAction {
 
         if(game.isRidingDolphin()) {
             if(keyValue > 0.3) {
-                avatar.pitch(-0.003f * time);
+                avatar.pitch(0.003f * time);
             }
             else {
-                avatar.pitch(0.003f * time);
+                avatar.pitch(-0.003f * time);
             }
         }
         else {

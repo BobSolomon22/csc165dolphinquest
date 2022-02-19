@@ -13,6 +13,7 @@ import javax.swing.*;
 import org.joml.*;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
@@ -23,6 +24,8 @@ public class MyGame extends VariableFrameRateGame {
     private static Engine engine;
     private InputManager im;
     public static Engine getEngine() { return engine; }
+
+    public Random rng;
 
     private double startTime, prevTime, elapsedTime, amount;
     private boolean ridingDolphin;
@@ -136,6 +139,16 @@ public class MyGame extends VariableFrameRateGame {
 
         // initialize variables
         ridingDolphin = true;
+
+        // randomly distribute prizes
+        rng = new Random();
+        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50);
+
+        prize1.setLocalLocation(prize1InitialLocation);
+        prize2.setLocalLocation(prize2InitialLocation);
+        prize3.setLocalLocation(prize3InitialLocation);
 
         // setup inputs
         im = engine.getInputManager();

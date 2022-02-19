@@ -35,6 +35,7 @@ public class MyGame extends VariableFrameRateGame {
     private ArrayList<GameObject> prizes;
     private float distanceBetweenAvatarAndCamera;
     private int prizesCollected;
+    private float speedBoostTimer;
 
     // GameObject declarations
     private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
@@ -164,6 +165,9 @@ public class MyGame extends VariableFrameRateGame {
         prize2.setLocalLocation(prize2InitialLocation);
         prize3.setLocalLocation(prize3InitialLocation);
 
+        // randomly move diamond
+        Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25);
+
         // setup inputs
         im = engine.getInputManager();
         ArrayList<Controller> controllers = im.getControllers();
@@ -289,10 +293,24 @@ public class MyGame extends VariableFrameRateGame {
         amount = elapsedTime * 0.03;
         Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
 
+        // decrement boost timer if it is above zero, otherwise reset
+        if(speedBoostTimer > 0) {
+            speedBoostTimer -= 0.1f * elapsedTime;
+        }
+        else {
+            speedBoostTimer = 0;
+        }
+
         // build and set HUD
 		String counter = Integer.toString(prizesCollected);
 		String display = "Prizes Collected = " + counter;
-		Vector3f hudColor = new Vector3f(1,0,0);
+        Vector3f hudColor;
+        if(speedBoostTimer > 0) {
+            hudColor = new Vector3f(1,0,1);
+        }
+        else {
+            hudColor = new Vector3f(1,0,0);
+        }
 		(engine.getHUDmanager()).setHUD1(display, hudColor, 500, 15);
         
         // get current cam/dolphin locations for later distance calculation
@@ -300,7 +318,12 @@ public class MyGame extends VariableFrameRateGame {
         oldCameraLocation = c.getLocation();
         
         // update input manager and update locations
-        im.update((float)elapsedTime);
+        if(speedBoostTimer > 0) {
+            im.update((float)elapsedTime * 2.0f);
+        }
+        else {
+            im.update((float)elapsedTime);
+        }
 
         // calculate distance between camera's new location and dolphin
         newCameraLocation = c.getLocation();
@@ -314,6 +337,13 @@ public class MyGame extends VariableFrameRateGame {
         else if(distanceBetweenAvatarAndCamera > 10) {
             c.setLocation(oldCameraLocation);
         }
+
+        // diamond of power collection
+        if(ridingDolphin && calculateDistanceBetweenObjectAndCamera(diamondOfPower) < 2) {
+            speedBoostTimer = 1000;
+            diamondOfPower.setLocalLocation(new Vector3f(((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25));
+        }
+
         // collect prize if one is close enough
         for(GameObject prize : prizes) {
             if(ridingDolphin == false && calculateDistanceBetweenObjectAndCamera(prize) < 1) {

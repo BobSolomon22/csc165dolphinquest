@@ -37,11 +37,11 @@ public class MyGame extends VariableFrameRateGame {
     private int prizesCollected;
 
     // GameObject declarations
-    private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis;
+    private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
     // ObjShape declarations
-    private ObjShape dolphinS, prize1S, prize2S, prize3S, xAxisS, yAxisS, zAxisS;
+    private ObjShape dolphinS, prize1S, prize2S, prize3S, xAxisS, yAxisS, zAxisS, diamondOfPowerS;
     // TextureImage declarations
-    private TextureImage dolphintx, prize1tx, prize2tx, prize3tx;
+    private TextureImage dolphintx, prize1tx, prize2tx, prize3tx, diamondOfPowertx;
     // Light declarations
     private Light light1;
 
@@ -84,6 +84,7 @@ public class MyGame extends VariableFrameRateGame {
         xAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
         yAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
         zAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f));
+        diamondOfPowerS = new DiamondOfPower();
     }
 
     @Override
@@ -92,6 +93,7 @@ public class MyGame extends VariableFrameRateGame {
         prize1tx = new TextureImage("smile.png");
         prize2tx = new TextureImage("stripe.png");
         prize3tx = new TextureImage("divide.png");
+        diamondOfPowertx = new TextureImage("diamondofpower.png");
     }
 
     @Override
@@ -128,6 +130,10 @@ public class MyGame extends VariableFrameRateGame {
         (xAxis.getRenderStates()).setColor(new Vector3f(1f,0f,0f));
         (yAxis.getRenderStates()).setColor(new Vector3f(0f,1f,0f));
         (zAxis.getRenderStates()).setColor(new Vector3f(0f,0f,1f));
+
+        // build diamond of power
+        diamondOfPower = new GameObject(GameObject.root(), diamondOfPowerS, diamondOfPowertx);
+        diamondOfPower.setLocalLocation(new Vector3f(0f, 0f, 0f));
     }
 
     @Override

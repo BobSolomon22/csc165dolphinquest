@@ -25,7 +25,7 @@ public class PitchUpAction extends AbstractInputAction {
         camera = game.getCamera();
 
         if(game.isRidingDolphin()) {
-            avatar.pitch(0.003f * time);
+            avatar.pitch(-0.003f * time);
         }
         else {
             camera.pitch(0.003f * time);

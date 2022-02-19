@@ -1,6 +1,7 @@
 package a1;
 
 import tage.*;
+import tage.Light.LightType;
 import tage.input.InputManager;
 import tage.input.IInputManager.INPUT_ACTION_TYPE;
 import tage.shapes.*;
@@ -44,7 +45,7 @@ public class MyGame extends VariableFrameRateGame {
     // TextureImage declarations
     private TextureImage dolphintx, prize1tx, prize2tx, prize3tx, diamondOfPowertx;
     // Light declarations
-    private Light light1;
+    private Light light1, spotlight;
 
     public MyGame() { super(); }
 
@@ -147,6 +148,11 @@ public class MyGame extends VariableFrameRateGame {
         light1 = new Light();
         light1.setLocation(new Vector3f(5.0f, 4.0f, 2.0f));
         (engine.getSceneGraph()).addLight(light1);
+
+        spotlight = new Light();
+        spotlight.setType(LightType.POSITIONAL);
+        spotlight.setLocation(dolphin.getLocalLocation());
+        (engine.getSceneGraph()).addLight(spotlight);
         
         // setup camera location
         (engine.getRenderSystem().getViewport("MAIN").getCamera()).setLocation(new Vector3f(0,0,5));
@@ -293,6 +299,9 @@ public class MyGame extends VariableFrameRateGame {
         amount = elapsedTime * 0.03;
         Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
 
+        // adjust light
+        spotlight.setLocation(dolphin.getLocalLocation());
+
         // decrement boost timer if it is above zero, otherwise reset
         if(speedBoostTimer > 0) {
             speedBoostTimer -= 0.1f * elapsedTime;
@@ -347,7 +356,7 @@ public class MyGame extends VariableFrameRateGame {
         // collect prize if one is close enough
         for(GameObject prize : prizes) {
             if(ridingDolphin == false && calculateDistanceBetweenObjectAndCamera(prize) < 1) {
-                prize.setLocalLocation(new Vector3f(999f,999f,999f));
+                prize.setLocalLocation(new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50));
                 prizesCollected++;
             }
         }

@@ -32,7 +32,9 @@ public class MyGame extends VariableFrameRateGame {
     private Vector3f dolphinLocation;
     private Vector3f oldCameraLocation;
     private Vector3f newCameraLocation;
+    private ArrayList<GameObject> prizes;
     private float distanceBetweenAvatarAndCamera;
+    private int prizesCollected;
 
     // GameObject declarations
     private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis;
@@ -114,6 +116,11 @@ public class MyGame extends VariableFrameRateGame {
         prize3.setLocalScale(new Matrix4f().scaling(0.5f));
         prize3.setLocalRotation(new Matrix4f().rotate(-90, new Vector3f(0f,1f,0f)));
 
+        prizes = new ArrayList<GameObject>();
+        prizes.add(prize1);
+        prizes.add(prize2);
+        prizes.add(prize3);
+
         // build axes
         xAxis = new GameObject(GameObject.root(), xAxisS);
         yAxis = new GameObject(GameObject.root(), yAxisS);
@@ -139,6 +146,7 @@ public class MyGame extends VariableFrameRateGame {
 
         // initialize variables
         ridingDolphin = true;
+        prizesCollected = 0;
 
         // randomly distribute prizes
         rng = new Random();
@@ -164,6 +172,7 @@ public class MyGame extends VariableFrameRateGame {
         TurnAction turnAction = new TurnAction(this);
         PitchUpNDownAction pitchUpNDownAction = new PitchUpNDownAction(this);
         MountAction mountAction = new MountAction(this);
+        FindDolphinAction findDolphinAction = new FindDolphinAction(this);
 
         for(Controller c : controllers) {
             if(c.getType() == Controller.Type.KEYBOARD) {
@@ -216,6 +225,13 @@ public class MyGame extends VariableFrameRateGame {
                     mountAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
+                // keyboard find dolphin
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.E,
+                    findDolphinAction,
+                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                );
             }
             else if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
                 // controller backnforth
@@ -232,13 +248,6 @@ public class MyGame extends VariableFrameRateGame {
                     turnAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
-                // controller mount
-                im.associateAction(
-                    c,
-                    net.java.games.input.Component.Identifier.Button._1,
-                    mountAction,
-                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
-                );
                 // controller pitch
                 im.associateAction(
                     c,
@@ -246,6 +255,21 @@ public class MyGame extends VariableFrameRateGame {
                     pitchUpNDownAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
+                // controller mount
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._1,
+                    mountAction,
+                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                );
+                // controller find dolphin
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._9,
+                    findDolphinAction,
+                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                );
+                
             }
         }
         
@@ -258,6 +282,12 @@ public class MyGame extends VariableFrameRateGame {
         prevTime = System.currentTimeMillis();
         amount = elapsedTime * 0.03;
         Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
+
+        // build and set HUD
+		String counter = Integer.toString(prizesCollected);
+		String display = "Prizes Collected = " + counter;
+		Vector3f hudColor = new Vector3f(1,0,0);
+		(engine.getHUDmanager()).setHUD1(display, hudColor, 500, 15);
         
         // get current cam/dolphin locations for later distance calculation
         dolphinLocation = dolphin.getLocalLocation();
@@ -268,7 +298,7 @@ public class MyGame extends VariableFrameRateGame {
 
         // calculate distance between camera's new location and dolphin
         newCameraLocation = c.getLocation();
-        distanceBetweenAvatarAndCamera = calculateDistanceBetweenDolphinAndCamera();
+        distanceBetweenAvatarAndCamera = calculateDistanceBetweenObjectAndCamera(dolphin);
 
         // camera follows dolphin if it is riding
         if(ridingDolphin) {
@@ -277,6 +307,13 @@ public class MyGame extends VariableFrameRateGame {
         // if camera is not riding and strays too far, reset to previous position
         else if(distanceBetweenAvatarAndCamera > 10) {
             c.setLocation(oldCameraLocation);
+        }
+        // collect prize if one is close enough
+        for(GameObject prize : prizes) {
+            if(ridingDolphin == false && calculateDistanceBetweenObjectAndCamera(prize) < 1) {
+                prize.setLocalLocation(new Vector3f(999f,999f,999f));
+                prizesCollected++;
+            }
         }
     }
 
@@ -292,10 +329,12 @@ public class MyGame extends VariableFrameRateGame {
         cam.setLocation(location.add(up.mul(1.0f).add(forward.mul(-1.5f))));
     }
 
-    private float calculateDistanceBetweenDolphinAndCamera() {
-        double xs = dolphinLocation.x() - newCameraLocation.x();
-        double ys = dolphinLocation.y() - newCameraLocation.y();
-        double zs = dolphinLocation.z() - newCameraLocation.z();
+    private float calculateDistanceBetweenObjectAndCamera(GameObject object) {
+        Vector3f objectLocation = object.getLocalLocation();
+
+        double xs = objectLocation.x() - newCameraLocation.x();
+        double ys = objectLocation.y() - newCameraLocation.y();
+        double zs = objectLocation.z() - newCameraLocation.z();
 
         float result = (float)(Math.abs(Math.sqrt((Math.pow(xs, 2)) + (Math.pow(ys, 2)) + (Math.pow(zs, 2)))));
         return result;

@@ -387,12 +387,13 @@ public class GameObject implements IControllable
 		}
 	}
 
+	/** Angles the object upward or downward the amount specified by amount. Positive values angle upward, negative values angle downward*/
 	public void pitch(float amount) {
 		Matrix4f oldRotation = getLocalRotation();
 		oldRotation.rotateX(-amount);
 		setLocalRotation(oldRotation);
 	}
-
+	/** Rotates the object left or right the amount specified by amount. Positive values rotate left, negative values rotate right*/
 	public void yaw(float amount) {
 		Matrix4f oldRotation = getLocalRotation();
 		oldRotation.rotateY(amount);

@@ -114,6 +114,7 @@ public class MyGame extends VariableFrameRateGame {
         prize2.setLocalTranslation(new Matrix4f().translation(2,0,0));
         prize2.setLocalScale(new Matrix4f().scaling(0.5f));
         prize2.setLocalRotation(new Matrix4f().rotate(90, new Vector3f(1f,0f,0f)));
+        prize2.getRenderStates().setTiling(1);
 
         prize3 = new GameObject(GameObject.root(), prize3S, prize3tx);
         prize3.setLocalTranslation(new Matrix4f().translation(-2,0,0));

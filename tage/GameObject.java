@@ -392,11 +392,13 @@ public class GameObject implements IControllable
 		Matrix4f oldRotation = getLocalRotation();
 		oldRotation.rotateX(-amount);
 		setLocalRotation(oldRotation);
+		update();
 	}
 	/** Rotates the object left or right the amount specified by amount. Positive values rotate left, negative values rotate right*/
 	public void yaw(float amount) {
 		Matrix4f oldRotation = getLocalRotation();
 		oldRotation.rotateY(amount);
 		setLocalRotation(oldRotation);
+		update();
 	}
 }

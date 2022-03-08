@@ -1,2 +1,2 @@
-# csc165a1
+# csc165dolphinquest
 Project for CSC165

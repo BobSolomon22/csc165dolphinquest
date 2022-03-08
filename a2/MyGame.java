@@ -164,16 +164,16 @@ public class MyGame extends VariableFrameRateGame {
 
         // randomly distribute prizes
         rng = new Random();
-        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50);
-        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50);
-        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50);
 
         prize1.setLocalLocation(prize1InitialLocation);
         prize2.setLocalLocation(prize2InitialLocation);
         prize3.setLocalLocation(prize3InitialLocation);
 
         // randomly move diamond
-        Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25);
+        Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25);
         diamondOfPower.setLocalLocation(diamondLocation);
 
         // setup inputs
@@ -222,6 +222,7 @@ public class MyGame extends VariableFrameRateGame {
                     rightAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
+                /* Obsolete Actions
                 // keyboard pitch up
                 im.associateAction(
                     c,
@@ -250,6 +251,7 @@ public class MyGame extends VariableFrameRateGame {
                     findDolphinAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
+                */
             }
             else if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
                 // controller backnforth
@@ -266,6 +268,7 @@ public class MyGame extends VariableFrameRateGame {
                     turnAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
+                /* Obsolete Actions
                 // controller pitch
                 im.associateAction(
                     c,
@@ -287,6 +290,7 @@ public class MyGame extends VariableFrameRateGame {
                     findDolphinAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
+                */
                 
             }
         }
@@ -304,17 +308,10 @@ public class MyGame extends VariableFrameRateGame {
         // adjust light
         spotlight.setLocation(dolphin.getLocalLocation());
 
-        // decrement boost timer if it is above zero, otherwise reset
-        if(speedBoostTimer > 0) {
-            speedBoostTimer -= 0.1f * elapsedTime;
-        }
-        else {
-            speedBoostTimer = 0;
-        }
-
         // build and set HUD
 		String counter = Integer.toString(prizesCollected);
 		String display = "Prizes Collected = " + counter;
+        String timerDisplay = "Speed Boost Timer = " + ((int)(speedBoostTimer) / 100);
         Vector3f hudColor;
         if(speedBoostTimer > 0) {
             hudColor = new Vector3f(1,0,1);
@@ -323,6 +320,15 @@ public class MyGame extends VariableFrameRateGame {
             hudColor = new Vector3f(1,0,0);
         }
 		(engine.getHUDmanager()).setHUD1(display, hudColor, 500, 15);
+        (engine.getHUDmanager()).setHUD2(timerDisplay, hudColor, 800, 15);
+
+        // decrement boost timer if it is above zero, otherwise reset
+        if(speedBoostTimer > 0) {
+            speedBoostTimer -= 0.1f * elapsedTime;
+        }
+        else {
+            speedBoostTimer = 0;
+        }
         
         // get current cam/dolphin locations for later distance calculation
         dolphinLocation = dolphin.getLocalLocation();
@@ -352,13 +358,13 @@ public class MyGame extends VariableFrameRateGame {
         // diamond of power collection
         if(ridingDolphin && calculateDistanceBetweenObjectAndCamera(diamondOfPower) < 2) {
             speedBoostTimer = 1000;
-            diamondOfPower.setLocalLocation(new Vector3f(((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25, ((rng.nextFloat()) * 50) - 25));
+            diamondOfPower.setLocalLocation(new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25));
         }
 
         // collect prize if one is close enough
         for(GameObject prize : prizes) {
-            if(ridingDolphin == false && calculateDistanceBetweenObjectAndCamera(prize) < 1) {
-                prize.setLocalLocation(new Vector3f(((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50, ((rng.nextFloat()) * 100) - 50));
+            if(calculateDistanceBetweenObjectAndCamera(prize) < 1) {
+                prize.setLocalLocation(new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50));
                 prizesCollected++;
             }
         }

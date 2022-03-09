@@ -46,6 +46,8 @@ public class MyGame extends VariableFrameRateGame {
     private TextureImage dolphintx, prize1tx, prize2tx, prize3tx, diamondOfPowertx;
     // Light declarations
     private Light light1, spotlight;
+    // Controllers
+    private CameraOrbit3D orbitController;
 
     public MyGame() { super(); }
 
@@ -57,17 +59,12 @@ public class MyGame extends VariableFrameRateGame {
         return (engine.getRenderSystem().getViewport("MAIN").getCamera());
     }
 
-    public boolean isRidingDolphin() {
-        return ridingDolphin;
+    public CameraOrbit3D getCameraController() {
+        return orbitController;
     }
 
-    public void toggleRide() {
-        if(ridingDolphin) {
-            ridingDolphin = false;
-        }
-        else {
-            ridingDolphin = true;
-        }
+    public boolean isRidingDolphin() {
+        return ridingDolphin;
     }
 
     public static void main(String[] args) {
@@ -154,9 +151,9 @@ public class MyGame extends VariableFrameRateGame {
         spotlight.setType(LightType.POSITIONAL);
         spotlight.setLocation(dolphin.getLocalLocation());
         (engine.getSceneGraph()).addLight(spotlight);
-        
-        // setup camera location
-        (engine.getRenderSystem().getViewport("MAIN").getCamera()).setLocation(new Vector3f(0,0,5));
+
+        // setup camera orbit controller
+        orbitController = new CameraOrbit3D(engine.getRenderSystem().getViewport("MAIN").getCamera(), dolphin, engine);
 
         // initialize variables
         ridingDolphin = true;
@@ -184,13 +181,12 @@ public class MyGame extends VariableFrameRateGame {
         BackAction backAction = new BackAction(this);
         LeftAction leftAction = new LeftAction(this);
         RightAction rightAction = new RightAction(this);
-        PitchUpAction pitchUpAction = new PitchUpAction(this);
-        PitchDownAction pitchDownAction = new PitchDownAction(this);
         BackNForthAction backNForthAction = new BackNForthAction(this);
         TurnAction turnAction = new TurnAction(this);
-        PitchUpNDownAction pitchUpNDownAction = new PitchUpNDownAction(this);
-        MountAction mountAction = new MountAction(this);
-        FindDolphinAction findDolphinAction = new FindDolphinAction(this);
+        OrbitAzimuthAction orbitAzimuthAction = new OrbitAzimuthAction(this);
+        OrbitElevationAction orbitElevationAction = new OrbitElevationAction(this);
+        OrbitZoomAction orbitZoomAction = new OrbitZoomAction(this);
+        OrbitResetAction orbitResetAction = new OrbitResetAction(this);
 
         for(Controller c : controllers) {
             if(c.getType() == Controller.Type.KEYBOARD) {
@@ -222,36 +218,6 @@ public class MyGame extends VariableFrameRateGame {
                     rightAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
-                /* Obsolete Actions
-                // keyboard pitch up
-                im.associateAction(
-                    c,
-                    net.java.games.input.Component.Identifier.Key.UP,
-                    pitchUpAction,
-                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
-                );
-                // keyboard pitch down
-                im.associateAction(
-                    c,
-                    net.java.games.input.Component.Identifier.Key.DOWN,
-                    pitchDownAction,
-                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
-                );
-                // keyboard mount
-                im.associateAction(
-                    c,
-                    net.java.games.input.Component.Identifier.Key.SPACE,
-                    mountAction,
-                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
-                );
-                // keyboard find dolphin
-                im.associateAction(
-                    c,
-                    net.java.games.input.Component.Identifier.Key.E,
-                    findDolphinAction,
-                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
-                );
-                */
             }
             else if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
                 // controller backnforth
@@ -268,30 +234,34 @@ public class MyGame extends VariableFrameRateGame {
                     turnAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
-                /* Obsolete Actions
-                // controller pitch
+                // controller azimuth
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Axis.RX,
+                    orbitAzimuthAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller elevation
                 im.associateAction(
                     c,
                     net.java.games.input.Component.Identifier.Axis.RY,
-                    pitchUpNDownAction,
+                    orbitElevationAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
-                // controller mount
+                // controller zoom
                 im.associateAction(
                     c,
-                    net.java.games.input.Component.Identifier.Button._1,
-                    mountAction,
-                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                    net.java.games.input.Component.Identifier.Axis.Z,
+                    orbitZoomAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
-                // controller find dolphin
+                // controller reset camera
                 im.associateAction(
                     c,
-                    net.java.games.input.Component.Identifier.Button._9,
-                    findDolphinAction,
+                    net.java.games.input.Component.Identifier.Button._10,
+                    orbitResetAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
-                */
-                
             }
         }
         
@@ -335,35 +305,25 @@ public class MyGame extends VariableFrameRateGame {
         oldCameraLocation = c.getLocation();
         
         // update input manager and update locations
-        if(ridingDolphin && speedBoostTimer > 0) {
+        if(speedBoostTimer > 0) {
             im.update((float)elapsedTime * 2.0f);
         }
         else {
             im.update((float)elapsedTime);
         }
 
-        // calculate distance between camera's new location and dolphin
-        newCameraLocation = c.getLocation();
-        distanceBetweenAvatarAndCamera = calculateDistanceBetweenObjectAndCamera(dolphin);
-
-        // camera follows dolphin if it is riding
-        if(ridingDolphin) {
-            positionCameraBehindAvatar();
-        }
-        // if camera is not riding and strays too far, reset to previous position
-        else if(distanceBetweenAvatarAndCamera > 10) {
-            c.setLocation(oldCameraLocation);
-        }
+        // camera follows dolphin
+        orbitController.updateCameraPosition();
 
         // diamond of power collection
-        if(ridingDolphin && calculateDistanceBetweenObjectAndCamera(diamondOfPower) < 2) {
+        if(calculateDistanceBetweenObjects(dolphin, diamondOfPower) < 2) {
             speedBoostTimer = 1000;
             diamondOfPower.setLocalLocation(new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25));
         }
 
         // collect prize if one is close enough
         for(GameObject prize : prizes) {
-            if(calculateDistanceBetweenObjectAndCamera(prize) < 1) {
+            if(calculateDistanceBetweenObjects(dolphin, prize) < 2) {
                 prize.setLocalLocation(new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50));
                 prizesCollected++;
             }
@@ -382,12 +342,13 @@ public class MyGame extends VariableFrameRateGame {
         cam.setLocation(location.add(up.mul(1.0f).add(forward.mul(-1.5f))));
     }
 
-    private float calculateDistanceBetweenObjectAndCamera(GameObject object) {
-        Vector3f objectLocation = object.getLocalLocation();
+    private float calculateDistanceBetweenObjects(GameObject object1, GameObject object2) {
+        Vector3f objectLocation1 = object1.getLocalLocation();
+        Vector3f objectLocation2 = object2.getLocalLocation();
 
-        double xs = objectLocation.x() - newCameraLocation.x();
-        double ys = objectLocation.y() - newCameraLocation.y();
-        double zs = objectLocation.z() - newCameraLocation.z();
+        double xs = objectLocation1.x() - objectLocation2.x();
+        double ys = objectLocation1.y() - objectLocation2.y();
+        double zs = objectLocation1.z() - objectLocation2.z();
 
         float result = (float)(Math.abs(Math.sqrt((Math.pow(xs, 2)) + (Math.pow(ys, 2)) + (Math.pow(zs, 2)))));
         return result;

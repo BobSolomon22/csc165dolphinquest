@@ -4,6 +4,7 @@ import tage.*;
 import tage.Light.LightType;
 import tage.input.InputManager;
 import tage.input.IInputManager.INPUT_ACTION_TYPE;
+import tage.nodeControllers.RotationController;
 import tage.shapes.*;
 
 import java.lang.Math;
@@ -39,6 +40,9 @@ public class MyGame extends VariableFrameRateGame {
     private int prizesCollected;
     private float speedBoostTimer;
 
+    // Rotation controllers
+    private RotationController rc1, rc2, rc3, rcd;
+    private ArrayList<RotationController> prizeRotationControllers;
     // GameObject declarations
     private GameObject groundPlane, dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
     // ObjShape declarations
@@ -178,6 +182,26 @@ public class MyGame extends VariableFrameRateGame {
         // setup camera orbit controller
         orbitController = new CameraOrbit3D(engine.getRenderSystem().getViewport("MAIN").getCamera(), dolphin);
 
+        // setup node controllers
+        rc1 = new RotationController(engine, new Vector3f(0,1,0), 0.005f);
+        rc2 = new RotationController(engine, new Vector3f(0,0,1), 0.005f);
+        rc3 = new RotationController(engine, new Vector3f(0,1,0), 0.005f);
+        rcd = new RotationController(engine, new Vector3f(0,1,0), 0.005f);
+        rc1.addTarget(prize1);
+        rc2.addTarget(prize2);
+        rc3.addTarget(prize3);
+        rcd.addTarget(diamondOfPower);
+
+        (engine.getSceneGraph()).addNodeController(rc1);
+        (engine.getSceneGraph()).addNodeController(rc2);
+        (engine.getSceneGraph()).addNodeController(rc3);
+        (engine.getSceneGraph()).addNodeController(rcd);
+
+        prizeRotationControllers = new ArrayList<RotationController>();
+        prizeRotationControllers.add(rc1);
+        prizeRotationControllers.add(rc2);
+        prizeRotationControllers.add(rc3);
+
         // initialize variables
         ridingDolphin = true;
         linesRendered = true;
@@ -193,9 +217,10 @@ public class MyGame extends VariableFrameRateGame {
         prize2.setLocalLocation(prize2InitialLocation);
         prize3.setLocalLocation(prize3InitialLocation);
 
-        // randomly move diamond
+        // initialize diamond
         Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25);
         diamondOfPower.setLocalLocation(diamondLocation);
+        rcd.enable();
 
         // setup inputs
         im = engine.getInputManager();
@@ -347,8 +372,10 @@ public class MyGame extends VariableFrameRateGame {
 
         // collect prize if one is close enough
         for(GameObject prize : prizes) {
-            if(calculateDistanceBetweenObjects(dolphin, prize) < 2) {
-                prize.setLocalLocation(new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50));
+            int prizeNumber = prizes.indexOf(prize);
+            if(!(prizeRotationControllers.get(prizeNumber).isEnabled()) &&
+            calculateDistanceBetweenObjects(dolphin, prize) < 2) {
+                prizeRotationControllers.get(prizeNumber).toggle();
                 prizesCollected++;
             }
         }

@@ -30,6 +30,7 @@ public class MyGame extends VariableFrameRateGame {
 
     private double startTime, prevTime, elapsedTime, amount;
     private boolean ridingDolphin;
+    private boolean linesRendered;
     private Vector3f dolphinLocation;
     private Vector3f oldCameraLocation;
     private Vector3f newCameraLocation;
@@ -39,11 +40,11 @@ public class MyGame extends VariableFrameRateGame {
     private float speedBoostTimer;
 
     // GameObject declarations
-    private GameObject dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
+    private GameObject groundPlane, dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
     // ObjShape declarations
-    private ObjShape dolphinS, prize1S, prize2S, prize3S, xAxisS, yAxisS, zAxisS, diamondOfPowerS;
+    private ObjShape groundPlaneS, dolphinS, prize1S, prize2S, prize3S, xAxisS, yAxisS, zAxisS, diamondOfPowerS;
     // TextureImage declarations
-    private TextureImage dolphintx, prize1tx, prize2tx, prize3tx, diamondOfPowertx;
+    private TextureImage groundPlanetx, dolphintx, prize1tx, prize2tx, prize3tx, diamondOfPowertx;
     // Light declarations
     private Light light1, spotlight;
     // Controllers
@@ -67,6 +68,21 @@ public class MyGame extends VariableFrameRateGame {
         return ridingDolphin;
     }
 
+    public void toggleLinesRender() {
+        if(linesRendered) {
+            xAxis.getRenderStates().disableRendering();
+            yAxis.getRenderStates().disableRendering();
+            zAxis.getRenderStates().disableRendering();
+            linesRendered = false;
+        }
+        else {
+            xAxis.getRenderStates().enableRendering();
+            yAxis.getRenderStates().enableRendering();
+            zAxis.getRenderStates().enableRendering();
+            linesRendered = true;
+        }
+    }
+
     public static void main(String[] args) {
         MyGame game = new MyGame();
         engine = new Engine(game);
@@ -76,6 +92,7 @@ public class MyGame extends VariableFrameRateGame {
 
     @Override
     public void loadShapes() {
+        groundPlaneS = new Plane();
         dolphinS = new ImportedModel("dolphinHighPoly.obj");
         prize1S = new Cube();
         prize2S = new Torus();
@@ -88,6 +105,7 @@ public class MyGame extends VariableFrameRateGame {
 
     @Override
     public void loadTextures() {
+        groundPlanetx = new TextureImage("plane.png");
         dolphintx = new TextureImage("Dolphin_HighPolyUV.png");
         prize1tx = new TextureImage("smile.png");
         prize2tx = new TextureImage("stripe.png");
@@ -97,6 +115,11 @@ public class MyGame extends VariableFrameRateGame {
 
     @Override
     public void buildObjects() {
+        // build ground plane
+        groundPlane = new GameObject(GameObject.root(), groundPlaneS, groundPlanetx);
+        groundPlane.setLocalTranslation((new Matrix4f()).translation(0,-1,0));
+        groundPlane.setLocalScale((new Matrix4f()).scaling(100.0f));
+
         // build dolphin
         dolphin = new GameObject(GameObject.root(), dolphinS, dolphintx);
         dolphin.setLocalTranslation((new Matrix4f()).translation(0,0,0));
@@ -153,10 +176,11 @@ public class MyGame extends VariableFrameRateGame {
         (engine.getSceneGraph()).addLight(spotlight);
 
         // setup camera orbit controller
-        orbitController = new CameraOrbit3D(engine.getRenderSystem().getViewport("MAIN").getCamera(), dolphin, engine);
+        orbitController = new CameraOrbit3D(engine.getRenderSystem().getViewport("MAIN").getCamera(), dolphin);
 
         // initialize variables
         ridingDolphin = true;
+        linesRendered = true;
         prizesCollected = 0;
 
         // randomly distribute prizes
@@ -186,7 +210,7 @@ public class MyGame extends VariableFrameRateGame {
         OrbitAzimuthAction orbitAzimuthAction = new OrbitAzimuthAction(this);
         OrbitElevationAction orbitElevationAction = new OrbitElevationAction(this);
         OrbitZoomAction orbitZoomAction = new OrbitZoomAction(this);
-        OrbitResetAction orbitResetAction = new OrbitResetAction(this);
+        ToggleLinesAction toggleLinesAction = new ToggleLinesAction(this);
 
         for(Controller c : controllers) {
             if(c.getType() == Controller.Type.KEYBOARD) {
@@ -255,11 +279,11 @@ public class MyGame extends VariableFrameRateGame {
                     orbitZoomAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
-                // controller reset camera
+                // controller toggle lines
                 im.associateAction(
                     c,
-                    net.java.games.input.Component.Identifier.Button._10,
-                    orbitResetAction,
+                    net.java.games.input.Component.Identifier.Button._3,
+                    toggleLinesAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
             }

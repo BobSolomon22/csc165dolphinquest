@@ -233,6 +233,14 @@ public class RenderSystem extends JFrame implements GLEventListener
 	private void constructViewport(Viewport vp)
 	{	GL4 gl = (GL4) GLContext.getCurrentGL();
 
+		gl.glEnable(GL_SCISSOR_TEST);
+		gl.glScissor((int)(vp.getRelativeLeft()*canvasWidth),
+			((int)vp.getRelativeBottom()*canvasHeight),
+			(int)vp.getActualWidth(),
+			(int)vp.getActualHeight());
+		gl.glClear(GL_COLOR_BUFFER_BIT);
+		gl.glClear(GL_DEPTH_BUFFER_BIT);
+
 		if (vp.getHasBorder())
 		{	int borderWidth = vp.getBorderWidth();
 			float[] color = vp.getBorderColor();

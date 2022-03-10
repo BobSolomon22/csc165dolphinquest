@@ -53,6 +53,9 @@ public class MyGame extends VariableFrameRateGame {
     private Light light1, spotlight;
     // Controllers
     private CameraOrbit3D orbitController;
+    // Minimap camera
+    private Camera miniCam;
+    private Viewport miniMap;
 
     public MyGame() { super(); }
 
@@ -182,6 +185,22 @@ public class MyGame extends VariableFrameRateGame {
         // setup camera orbit controller
         orbitController = new CameraOrbit3D(engine.getRenderSystem().getViewport("MAIN").getCamera(), dolphin);
 
+        // add viewport for minimap
+        (engine.getRenderSystem()).addViewport("MINIMAP", 0.75f, 0f, 0.25f, 0.25f);
+        miniMap = (engine.getRenderSystem()).getViewport("MINIMAP");
+        miniCam = miniMap.getCamera();
+
+        miniMap.setHasBorder(true);
+        miniMap.setBorderWidth(4);
+        miniMap.setBorderColor(1.0f, 0.0f, 0.0f);
+
+        miniCam.setLocation(new Vector3f(dolphin.getWorldLocation().x(),
+                                         dolphin.getWorldLocation().y() + 10,
+                                         dolphin.getWorldLocation().z()));
+        miniCam.setU(new Vector3f(1,0,0));
+        miniCam.setV(new Vector3f(0,0,1));
+        miniCam.setN(new Vector3f(0,-1,0));
+
         // setup node controllers
         rc1 = new RotationController(engine, new Vector3f(0,1,0), 0.005f);
         rc2 = new RotationController(engine, new Vector3f(0,0,1), 0.005f);
@@ -236,6 +255,12 @@ public class MyGame extends VariableFrameRateGame {
         OrbitElevationAction orbitElevationAction = new OrbitElevationAction(this);
         OrbitZoomAction orbitZoomAction = new OrbitZoomAction(this);
         ToggleLinesAction toggleLinesAction = new ToggleLinesAction(this);
+        MiniMapFwdAction miniMapFwdAction = new MiniMapFwdAction(this);
+        MiniMapBackAction miniMapBackAction = new MiniMapBackAction(this);
+        MiniMapLeftAction miniMapLeftAction = new MiniMapLeftAction(this);
+        MiniMapRightAction miniMapRightAction = new MiniMapRightAction(this);
+        MiniMapZoomInAction miniMapZoomInAction = new MiniMapZoomInAction(this);
+        MiniMapZoomOutAction miniMapZoomOutAction = new MiniMapZoomOutAction(this);
 
         for(Controller c : controllers) {
             if(c.getType() == Controller.Type.KEYBOARD) {
@@ -307,9 +332,51 @@ public class MyGame extends VariableFrameRateGame {
                 // controller toggle lines
                 im.associateAction(
                     c,
-                    net.java.games.input.Component.Identifier.Button._3,
+                    net.java.games.input.Component.Identifier.Button._6,
                     toggleLinesAction,
                     INPUT_ACTION_TYPE.ON_PRESS_ONLY
+                );
+                // controller minimap forward
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._3,
+                    miniMapFwdAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller minimap backward
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._0,
+                    miniMapBackAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller minimap left
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._2,
+                    miniMapLeftAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller minimap right
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._1,
+                    miniMapRightAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller minimap zoom in
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._5,
+                    miniMapZoomInAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // controller minimap zoom out
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Button._4,
+                    miniMapZoomOutAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
                 );
             }
         }
@@ -330,16 +397,31 @@ public class MyGame extends VariableFrameRateGame {
         // build and set HUD
 		String counter = Integer.toString(prizesCollected);
 		String display = "Prizes Collected = " + counter;
-        String timerDisplay = "Speed Boost Timer = " + ((int)(speedBoostTimer) / 100);
+        String locationDisplay = "Dolphin Location = (" + (int)dolphin.getWorldLocation().x() +
+                                                ", " + (int)dolphin.getWorldLocation().y() +
+                                                ", " + (int)dolphin.getWorldLocation().z() +
+                                                ")";
         Vector3f hudColor;
         if(speedBoostTimer > 0) {
             hudColor = new Vector3f(1,0,1);
+            miniMap.setBorderColor(1.0f, 0.0f, 1.0f);
         }
         else {
             hudColor = new Vector3f(1,0,0);
+            miniMap.setBorderColor(1.0f, 0.0f, 0.0f);
         }
-		(engine.getHUDmanager()).setHUD1(display, hudColor, 500, 15);
-        (engine.getHUDmanager()).setHUD2(timerDisplay, hudColor, 800, 15);
+
+        float mainRelativeLeft = engine.getRenderSystem().getViewport("MAIN").getRelativeLeft();
+        float mainRelativeBottom = engine.getRenderSystem().getViewport("MAIN").getRelativeBottom();
+        float mainActualWidth = engine.getRenderSystem().getViewport("MAIN").getActualWidth();
+        float mainActualHeight = engine.getRenderSystem().getViewport("MAIN").getActualHeight();
+        float miniMapRelativeLeft = engine.getRenderSystem().getViewport("MINIMAP").getRelativeLeft();
+        float miniMapRelativeBottom = engine.getRenderSystem().getViewport("MINIMAP").getRelativeBottom();
+        float miniMapActualWidth = engine.getRenderSystem().getViewport("MINIMAP").getActualWidth();
+        float miniMapActualHeight = engine.getRenderSystem().getViewport("MINIMAP").getActualHeight();
+
+		(engine.getHUDmanager()).setHUD1(display, hudColor, (int)(mainRelativeLeft * mainActualWidth) + 5,  (int)(mainRelativeBottom * mainActualHeight) + 5);
+        (engine.getHUDmanager()).setHUD2(locationDisplay, hudColor, (int)((miniMapRelativeLeft * mainActualWidth) + 5), (int)(miniMapRelativeBottom * miniMapActualHeight) + 5);
 
         // decrement boost timer if it is above zero, otherwise reset
         if(speedBoostTimer > 0) {

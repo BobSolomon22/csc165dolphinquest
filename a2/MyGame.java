@@ -4,7 +4,7 @@ import tage.*;
 import tage.Light.LightType;
 import tage.input.InputManager;
 import tage.input.IInputManager.INPUT_ACTION_TYPE;
-import tage.nodeControllers.RotationController;
+import tage.nodeControllers.*;
 import tage.shapes.*;
 
 import java.lang.Math;
@@ -43,6 +43,8 @@ public class MyGame extends VariableFrameRateGame {
     // Rotation controllers
     private RotationController rc1, rc2, rc3, rcd;
     private ArrayList<RotationController> prizeRotationControllers;
+    // Float controllers
+    private FloatController fc1, fc2, fc3;
     // GameObject declarations
     private GameObject groundPlane, dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
     // ObjShape declarations
@@ -134,17 +136,17 @@ public class MyGame extends VariableFrameRateGame {
 
         // build prizes
         prize1 = new GameObject(GameObject.root(), prize1S, prize1tx);
-        prize1.setLocalTranslation(new Matrix4f().translation(0,2,0));
+        prize1.setLocalTranslation(new Matrix4f().translation(0,1,0));
         prize1.setLocalScale(new Matrix4f().scaling(0.3f));
 
         prize2 = new GameObject(GameObject.root(), prize2S, prize2tx);
-        prize2.setLocalTranslation(new Matrix4f().translation(2,0,0));
+        prize2.setLocalTranslation(new Matrix4f().translation(1,0,0));
         prize2.setLocalScale(new Matrix4f().scaling(0.5f));
         prize2.setLocalRotation(new Matrix4f().rotate(90, new Vector3f(1f,0f,0f)));
         prize2.getRenderStates().setTiling(1);
 
         prize3 = new GameObject(GameObject.root(), prize3S, prize3tx);
-        prize3.setLocalTranslation(new Matrix4f().translation(-2,0,0));
+        prize3.setLocalTranslation(new Matrix4f().translation(-1,0,0));
         prize3.setLocalScale(new Matrix4f().scaling(0.5f));
         prize3.setLocalRotation(new Matrix4f().rotate(-90, new Vector3f(0f,1f,0f)));
 
@@ -228,13 +230,29 @@ public class MyGame extends VariableFrameRateGame {
 
         // randomly distribute prizes
         rng = new Random();
-        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50);
-        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50);
-        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 0.5f, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1.0f, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1.0f, ((rng.nextFloat()) * 100) - 50);
 
         prize1.setLocalLocation(prize1InitialLocation);
         prize2.setLocalLocation(prize2InitialLocation);
         prize3.setLocalLocation(prize3InitialLocation);
+        
+        // setup float controllers using prizes' new locations
+        fc1 = new FloatController(engine, prize1.getLocalLocation().y(), 0.5f, 2);
+        fc2 = new FloatController(engine, prize2.getLocalLocation().y(), 0.5f, 2);
+        fc3 = new FloatController(engine, prize3.getLocalLocation().y(), 0.5f, 2);
+        fc1.addTarget(prize1);
+        fc2.addTarget(prize2);
+        fc3.addTarget(prize3);
+        
+        (engine.getSceneGraph()).addNodeController(fc1);
+        (engine.getSceneGraph()).addNodeController(fc2);
+        (engine.getSceneGraph()).addNodeController(fc3);
+        
+        fc1.enable();
+        fc2.enable();
+        fc3.enable();
 
         // initialize diamond
         Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25);

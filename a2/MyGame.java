@@ -48,6 +48,7 @@ public class MyGame extends VariableFrameRateGame {
     private ArrayList<RotationController> prizeRotationControllers;
     // Float controllers
     private FloatController fc1, fc2, fc3;
+    private ArrayList<FloatController> prizeFloatControllers;
     // GameObject declarations
     private GameObject groundPlane, dolphin, prize1, prize2, prize3, miniPrize1, miniPrize2, miniPrize3, xAxis, yAxis, zAxis, diamondOfPower;
     // ObjShape declarations
@@ -107,6 +108,10 @@ public class MyGame extends VariableFrameRateGame {
         rc1.disable();
         rc2.disable();
         rc3.disable();
+
+        fc1.disable();
+        fc2.disable();
+        fc3.disable();
 
         for(GameObject prize : miniPrizes) {
             prize.getRenderStates().disableRendering();
@@ -216,9 +221,9 @@ public class MyGame extends VariableFrameRateGame {
         xAxis = new GameObject(GameObject.root(), xAxisS);
         yAxis = new GameObject(GameObject.root(), yAxisS);
         zAxis = new GameObject(GameObject.root(), zAxisS);
-        (xAxis.getRenderStates()).setColor(new Vector3f(1f,0f,0f));
+        (xAxis.getRenderStates()).setColor(new Vector3f(1f,1f,0f));
         (yAxis.getRenderStates()).setColor(new Vector3f(0f,1f,0f));
-        (zAxis.getRenderStates()).setColor(new Vector3f(0f,0f,1f));
+        (zAxis.getRenderStates()).setColor(new Vector3f(0f,1f,1f));
 
         // build diamond of power
         diamondOfPower = new GameObject(GameObject.root(), diamondOfPowerS, diamondOfPowertx);
@@ -289,10 +294,6 @@ public class MyGame extends VariableFrameRateGame {
         resetReady = false;
         prizesCollected = 0;
         prizesCollectedThisRound = 0;
-
-        // randomly distribute prizes
-        rng = new Random();
-        initPrizes();
         
         // setup float controllers using prizes' new locations
         fc1 = new FloatController(engine, prize1.getLocalLocation().y(), 0.5f, 2);
@@ -308,10 +309,15 @@ public class MyGame extends VariableFrameRateGame {
         (engine.getSceneGraph()).addNodeController(fc1);
         (engine.getSceneGraph()).addNodeController(fc2);
         (engine.getSceneGraph()).addNodeController(fc3);
-        
-        fc1.enable();
-        fc2.enable();
-        fc3.enable();
+
+        prizeFloatControllers = new ArrayList<FloatController>();
+        prizeFloatControllers.add(fc1);
+        prizeFloatControllers.add(fc2);
+        prizeFloatControllers.add(fc3);
+
+        // randomly distribute prizes
+        rng = new Random();
+        initPrizes();
 
         // initialize diamond
         Vector3f diamondLocation = new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25);
@@ -539,7 +545,8 @@ public class MyGame extends VariableFrameRateGame {
             int prizeNumber = prizes.indexOf(prize);
             if(!(prizeRotationControllers.get(prizeNumber).isEnabled()) &&
             calculateDistanceBetweenObjects(dolphin, prize) < 2) {
-                prizeRotationControllers.get(prizeNumber).toggle();
+                prizeRotationControllers.get(prizeNumber).enable();
+                prizeFloatControllers.get(prizeNumber).enable();
                 miniPrizes.get(prizeNumber).getRenderStates().enableRendering();
                 prizesCollected++;
                 prizesCollectedThisRound++;

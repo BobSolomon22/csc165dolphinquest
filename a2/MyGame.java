@@ -32,12 +32,15 @@ public class MyGame extends VariableFrameRateGame {
     private double startTime, prevTime, elapsedTime, amount;
     private boolean ridingDolphin;
     private boolean linesRendered;
+    private boolean resetReady;
     private Vector3f dolphinLocation;
     private Vector3f oldCameraLocation;
     private Vector3f newCameraLocation;
     private ArrayList<GameObject> prizes;
+    private ArrayList<GameObject> miniPrizes;
     private float distanceBetweenAvatarAndCamera;
     private int prizesCollected;
+    private int prizesCollectedThisRound;
     private float speedBoostTimer;
 
     // Rotation controllers
@@ -46,11 +49,11 @@ public class MyGame extends VariableFrameRateGame {
     // Float controllers
     private FloatController fc1, fc2, fc3;
     // GameObject declarations
-    private GameObject groundPlane, dolphin, prize1, prize2, prize3, xAxis, yAxis, zAxis, diamondOfPower;
+    private GameObject groundPlane, dolphin, prize1, prize2, prize3, miniPrize1, miniPrize2, miniPrize3, xAxis, yAxis, zAxis, diamondOfPower;
     // ObjShape declarations
-    private ObjShape groundPlaneS, dolphinS, prize1S, prize2S, prize3S, xAxisS, yAxisS, zAxisS, diamondOfPowerS;
+    private ObjShape groundPlaneS, dolphinS, prize1S, prize2S, prize3S, miniPrize1S, miniPrize2S, miniPrize3S, xAxisS, yAxisS, zAxisS, diamondOfPowerS;
     // TextureImage declarations
-    private TextureImage groundPlanetx, dolphintx, prize1tx, prize2tx, prize3tx, diamondOfPowertx;
+    private TextureImage groundPlanetx, dolphintx, prize1tx, prize2tx, prize3tx, miniPrize1tx, miniPrize2tx, miniPrize3tx, diamondOfPowertx;
     // Light declarations
     private Light light1, spotlight;
     // Controllers
@@ -92,6 +95,24 @@ public class MyGame extends VariableFrameRateGame {
         }
     }
 
+    public void initPrizes() {
+        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 0.5f, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1.0f, ((rng.nextFloat()) * 100) - 50);
+        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1.0f, ((rng.nextFloat()) * 100) - 50);
+
+        prize1.setLocalLocation(prize1InitialLocation);
+        prize2.setLocalLocation(prize2InitialLocation);
+        prize3.setLocalLocation(prize3InitialLocation);
+
+        rc1.disable();
+        rc2.disable();
+        rc3.disable();
+
+        for(GameObject prize : miniPrizes) {
+            prize.getRenderStates().disableRendering();
+        }
+    }
+
     public static void main(String[] args) {
         MyGame game = new MyGame();
         engine = new Engine(game);
@@ -106,6 +127,9 @@ public class MyGame extends VariableFrameRateGame {
         prize1S = new Cube();
         prize2S = new Torus();
         prize3S = new Sphere();
+        miniPrize1S = new Cube();
+        miniPrize2S = new Torus();
+        miniPrize3S = new Sphere();
         xAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(3f,0f,0f));
         yAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,3f,0f));
         zAxisS = new Line(new Vector3f(0f,0f,0f), new Vector3f(0f,0f,3f));
@@ -119,6 +143,9 @@ public class MyGame extends VariableFrameRateGame {
         prize1tx = new TextureImage("smile.png");
         prize2tx = new TextureImage("stripe.png");
         prize3tx = new TextureImage("divide.png");
+        miniPrize1tx = new TextureImage("smile.png");
+        miniPrize2tx = new TextureImage("stripe.png");
+        miniPrize3tx = new TextureImage("divide.png");
         diamondOfPowertx = new TextureImage("diamondofpower.png");
     }
 
@@ -154,6 +181,36 @@ public class MyGame extends VariableFrameRateGame {
         prizes.add(prize1);
         prizes.add(prize2);
         prizes.add(prize3);
+
+        // setup mini prizes
+        float prizex = 3.0f * (float)Math.cos(Math.PI / 6);
+        float prizez = 3.0f * (float)Math.sin(Math.PI / 6);
+
+        miniPrize1 = new GameObject(dolphin, miniPrize1S, miniPrize1tx);
+        miniPrize1.setLocalLocation(dolphin.getLocalLocation().add(new Vector3f(prizex, 0.0f, prizez)));
+        miniPrize1.setLocalScale(new Matrix4f().scaling(0.05f));
+
+        miniPrize2 = new GameObject(dolphin, miniPrize2S, miniPrize2tx);
+        miniPrize2.setLocalLocation(dolphin.getLocalLocation().add(new Vector3f(-prizex, 0.0f, prizez)));
+        miniPrize2.setLocalScale(new Matrix4f().scaling(0.075f));
+        miniPrize2.setLocalRotation(new Matrix4f().rotate(90, new Vector3f(1f,0f,0f)));
+        miniPrize2.getRenderStates().setTiling(1);
+
+        miniPrize3 = new GameObject(dolphin, miniPrize3S, miniPrize3tx);
+        miniPrize3.setLocalLocation(dolphin.getLocalLocation().add(new Vector3f(0.0f, 0.0f, -3.0f)));
+        miniPrize3.setLocalScale(new Matrix4f().scaling(0.055f));
+        miniPrize3.setLocalRotation(new Matrix4f().rotate(-90, new Vector3f(0f,1f,0f)));
+
+        miniPrizes = new ArrayList<GameObject>();
+        miniPrizes.add(miniPrize1);
+        miniPrizes.add(miniPrize2);
+        miniPrizes.add(miniPrize3);
+
+        for(GameObject prize : miniPrizes) {
+            prize.propagateTranslation(true);
+            prize.propagateRotation(false);
+        }
+        
 
         // build axes
         xAxis = new GameObject(GameObject.root(), xAxisS);
@@ -211,6 +268,9 @@ public class MyGame extends VariableFrameRateGame {
         rc1.addTarget(prize1);
         rc2.addTarget(prize2);
         rc3.addTarget(prize3);
+        rc1.addTarget(miniPrize1);
+        rc2.addTarget(miniPrize2);
+        rc3.addTarget(miniPrize3);
         rcd.addTarget(diamondOfPower);
 
         (engine.getSceneGraph()).addNodeController(rc1);
@@ -226,17 +286,13 @@ public class MyGame extends VariableFrameRateGame {
         // initialize variables
         ridingDolphin = true;
         linesRendered = true;
+        resetReady = false;
         prizesCollected = 0;
+        prizesCollectedThisRound = 0;
 
         // randomly distribute prizes
         rng = new Random();
-        Vector3f prize1InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 0.5f, ((rng.nextFloat()) * 100) - 50);
-        Vector3f prize2InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1.0f, ((rng.nextFloat()) * 100) - 50);
-        Vector3f prize3InitialLocation = new Vector3f(((rng.nextFloat()) * 100) - 50, 1.0f, ((rng.nextFloat()) * 100) - 50);
-
-        prize1.setLocalLocation(prize1InitialLocation);
-        prize2.setLocalLocation(prize2InitialLocation);
-        prize3.setLocalLocation(prize3InitialLocation);
+        initPrizes();
         
         // setup float controllers using prizes' new locations
         fc1 = new FloatController(engine, prize1.getLocalLocation().y(), 0.5f, 2);
@@ -245,6 +301,9 @@ public class MyGame extends VariableFrameRateGame {
         fc1.addTarget(prize1);
         fc2.addTarget(prize2);
         fc3.addTarget(prize3);
+        fc1.addTarget(miniPrize1);
+        fc2.addTarget(miniPrize2);
+        fc3.addTarget(miniPrize3);
         
         (engine.getSceneGraph()).addNodeController(fc1);
         (engine.getSceneGraph()).addNodeController(fc2);
@@ -467,6 +526,11 @@ public class MyGame extends VariableFrameRateGame {
         // diamond of power collection
         if(calculateDistanceBetweenObjects(dolphin, diamondOfPower) < 2) {
             speedBoostTimer = 1000;
+            if(resetReady) {
+                initPrizes();
+                resetReady = false;
+                prizesCollectedThisRound = 0;
+            }
             diamondOfPower.setLocalLocation(new Vector3f(((rng.nextFloat()) * 50) - 25, 1, ((rng.nextFloat()) * 50) - 25));
         }
 
@@ -476,8 +540,16 @@ public class MyGame extends VariableFrameRateGame {
             if(!(prizeRotationControllers.get(prizeNumber).isEnabled()) &&
             calculateDistanceBetweenObjects(dolphin, prize) < 2) {
                 prizeRotationControllers.get(prizeNumber).toggle();
+                miniPrizes.get(prizeNumber).getRenderStates().enableRendering();
                 prizesCollected++;
+                prizesCollectedThisRound++;
             }
+        }
+
+        // move diamond of power to reset position once all prizes are collected
+        if(prizesCollectedThisRound >= 3) {
+            diamondOfPower.setLocalLocation(new Vector3f(0.0f, 1.0f, 0.0f));
+            resetReady = true;
         }
     }
 

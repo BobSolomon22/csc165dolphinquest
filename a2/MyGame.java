@@ -328,22 +328,35 @@ public class MyGame extends VariableFrameRateGame {
         im = engine.getInputManager();
         ArrayList<Controller> controllers = im.getControllers();
 
+        // movement actions
         FwdAction fwdAction = new FwdAction(this);
         BackAction backAction = new BackAction(this);
         LeftAction leftAction = new LeftAction(this);
         RightAction rightAction = new RightAction(this);
         BackNForthAction backNForthAction = new BackNForthAction(this);
         TurnAction turnAction = new TurnAction(this);
+
+        // orbit controller actions
         OrbitAzimuthAction orbitAzimuthAction = new OrbitAzimuthAction(this);
+        OrbitAzimuthLeftAction orbitAzimuthLeftAction = new OrbitAzimuthLeftAction(this);
+        OrbitAzimuthRightAction orbitAzimuthRightAction = new OrbitAzimuthRightAction(this);
         OrbitElevationAction orbitElevationAction = new OrbitElevationAction(this);
+        OrbitElevationUpAction orbitElevationUpAction = new OrbitElevationUpAction(this);
+        OrbitElevationDownAction orbitElevationDownAction = new OrbitElevationDownAction(this);
         OrbitZoomAction orbitZoomAction = new OrbitZoomAction(this);
-        ToggleLinesAction toggleLinesAction = new ToggleLinesAction(this);
+        OrbitZoomOutAction orbitZoomOutAction = new OrbitZoomOutAction(this);
+        OrbitZoomInAction orbitZoomInAction = new OrbitZoomInAction(this);
+
+        // minimap actions
         MiniMapFwdAction miniMapFwdAction = new MiniMapFwdAction(this);
         MiniMapBackAction miniMapBackAction = new MiniMapBackAction(this);
         MiniMapLeftAction miniMapLeftAction = new MiniMapLeftAction(this);
         MiniMapRightAction miniMapRightAction = new MiniMapRightAction(this);
         MiniMapZoomInAction miniMapZoomInAction = new MiniMapZoomInAction(this);
         MiniMapZoomOutAction miniMapZoomOutAction = new MiniMapZoomOutAction(this);
+
+        // misc actions
+        ToggleLinesAction toggleLinesAction = new ToggleLinesAction(this);
 
         for(Controller c : controllers) {
             if(c.getType() == Controller.Type.KEYBOARD) {
@@ -374,6 +387,97 @@ public class MyGame extends VariableFrameRateGame {
                     net.java.games.input.Component.Identifier.Key.D,
                     rightAction,
                     INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard azimuth left action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.LEFT,
+                    orbitAzimuthLeftAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard azimuth right action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.RIGHT,
+                    orbitAzimuthRightAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard elevation up action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.UP,
+                    orbitElevationUpAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard elevation up action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.DOWN,
+                    orbitElevationDownAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard zoom out action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.Q,
+                    orbitZoomOutAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard zoom in action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.E,
+                    orbitZoomInAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard minimap left action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.J,
+                    miniMapLeftAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard minimap right action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.L,
+                    miniMapRightAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard minimap forward action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.I,
+                    miniMapFwdAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard minimap back action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.K,
+                    miniMapBackAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard minimap zoom out action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.U,
+                    miniMapZoomOutAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard minimap zoom out action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key.O,
+                    miniMapZoomInAction,
+                    INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN
+                );
+                // keyboard toggle lines action
+                im.associateAction(
+                    c,
+                    net.java.games.input.Component.Identifier.Key._1,
+                    toggleLinesAction,
+                    INPUT_ACTION_TYPE.ON_PRESS_ONLY
                 );
             }
             else if(c.getType() == Controller.Type.GAMEPAD || c.getType() == Controller.Type.STICK) {
